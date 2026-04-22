@@ -1,0 +1,86 @@
+// ==UserScript==
+
+// @name         网页颜色反转 (带手动开关)
+
+// @namespace    http://tampermonkey.net/
+
+// @version      1.2
+
+// @description  手动控制网页颜色反转，保护眼睛
+
+// @author       Gemini
+
+// @match        *://*/*
+
+// @grant        GM_registerMenuCommand
+
+// @grant        GM_setValue
+
+// @grant        GM_getValue
+
+// @run-at       document-start
+
+// ==/UserScript==
+
+
+
+(function() {
+
+    'use strict';
+
+
+
+    // 获取当前域名的开关状态，默认关闭 (false)
+
+    const host = window.location.hostname;
+
+    let isEnabled = GM_getValue(host, false);
+
+
+
+    // 注册插件菜单按钮
+
+    GM_registerMenuCommand(isEnabled ? "✨ 恢复正常模式" : "🌙 开启反转模式", () => {
+
+        GM_setValue(host, !isEnabled);
+
+        location.reload(); // 切换后刷新页面生效
+
+    });
+
+
+
+    // 如果当前状态是开启，则注入样式
+
+    if (isEnabled) {
+
+        const style = document.createElement('style');
+
+        style.id = "color-invert-style";
+
+        style.innerHTML = `
+
+            html {
+
+                filter: invert(1) hue-rotate(180deg) !important;
+
+                background-color: #fff !important;
+
+            }
+
+            img, video, canvas, [style*="background-image"], svg:not(:has(path)) {
+
+                filter: invert(1) hue-rotate(180deg) !important;
+
+            }
+
+            body { background-color: #fff !important; }
+
+        `;
+
+        document.documentElement.appendChild(style);
+
+    }
+
+})();
+
